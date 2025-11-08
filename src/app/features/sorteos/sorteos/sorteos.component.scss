@@ -1,0 +1,132 @@
+/* === Sorteos y venta === */
+$bg-card: rgba(255,255,255,.03);
+$bd-card: rgba(255,255,255,.06);
+$muted: #9ca3af;
+$fg: #fff;
+$accent: #22d3ee;
+
+:host { display: block; color: $fg; }
+
+h1 {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  margin-bottom: .75rem;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr; /* respeta tu md:grid-cols-2 */
+  }
+}
+
+.panel {
+  background: $bg-card;
+  border: 1px solid $bd-card;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+/* Si prefieres no cambiar HTML, aplica a “.border.p-3.rounded” */
+.border.p-3.rounded { @extend .panel; }
+
+/* Listado de sorteos */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: .65rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,.06);
+
+    &:first-child { border-top: 0; }
+
+    .titulo {
+      .nombre { font-weight: 700; }
+      small { color: $muted; display: block; }
+    }
+
+    .btn {
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: .4rem .75rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+
+      &:hover { background: #111827; border-color: rgba(34,211,238,.35); }
+      &:focus { outline: none; box-shadow: 0 0 0 3px rgba(34,211,238,.2); }
+    }
+  }
+}
+
+/* Form de venta */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .75rem !important;
+
+  input {
+    background: #0b1220;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px;
+    padding: .5rem .6rem;
+    color: $fg;
+    min-width: 200px;
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba(34,211,238,.2);
+    }
+  }
+
+  button {
+    background: #059669; /* emerald-600 */
+    color: #e6fff8;
+    border: none;
+    border-radius: 10px;
+    padding: .55rem .9rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled { opacity: .6; cursor: not-allowed; }
+  }
+}
+
+/* Mensajes */
+p {
+  &.text-red-600 { color: #f87171; }
+  &.text-green-600 { color: #34d399; }
+}
+
+/* Tabla billetes */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .95rem;
+  background: $bg-card;
+  border: 1px solid $bd-card;
+  border-radius: 14px;
+  overflow: hidden;
+
+  thead {
+    background: rgba(255,255,255,.06);
+    th { text-align: left; padding: .6rem .7rem; font-weight: 600; }
+  }
+
+  tbody {
+    td { padding: .55rem .7rem; border-top: 1px solid rgba(255,255,255,.06); }
+    tr:nth-child(even) { background: rgba(255,255,255,.02); }
+    tr:hover { background: rgba(34,211,238,.06); }
+  }
+}

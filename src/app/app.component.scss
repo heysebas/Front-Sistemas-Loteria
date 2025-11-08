@@ -1,0 +1,214 @@
+/* ===========================
+   app.component.scss
+   Estilo base para header/nav/main
+   =========================== */
+
+/* 🎨 Paleta y escalas */
+$bg: #0f172a;            // slate-900
+$bg-2: #111827;          // gris muy oscuro para hover
+$fg: #ffffff;            // texto principal
+$muted: #9ca3af;         // texto secundario
+$accent: #22d3ee;        // cian (resaltado)
+$accent-2: #06b6d4;      // cian más intenso
+$ring: rgba(34, 211, 238, 0.35);
+
+$radius: 12px;
+$space-1: .25rem;
+$space-2: .5rem;
+$space-3: .75rem;
+$space-4: 1rem;
+$space-6: 1.5rem;
+
+@mixin focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px $ring;
+}
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #0b1220 radial-gradient(1200px 800px at 100% -10%, rgba(34,211,238,.08), transparent);
+  color: $fg;
+  font-synthesis-weight: none; // tipografía más nítida
+}
+
+/* ====== Header ====== */
+header {
+  background: $bg;
+  color: $fg;
+  padding: $space-4;
+  display: flex;
+  gap: $space-4;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: saturate(140%) blur(6px);
+
+  /* Contenedor fluid que respeta márgenes en pantallas grandes */
+  > * {
+    max-width: 1200px;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* Estructura: brand + nav */
+  a.font-bold {
+    font-weight: 700;
+    letter-spacing: .2px;
+    text-decoration: none;
+    color: $fg;
+    padding: $space-2 $space-3;
+    border-radius: $radius;
+
+    &:hover { background: rgba(255,255,255,.05); }
+    &:focus-visible { @include focus-ring; }
+  }
+
+  nav {
+    display: flex;
+    gap: $space-3;
+
+    a {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: .5ch;
+      padding: $space-2 $space-3;
+      border-radius: $radius;
+      color: $muted;
+      text-decoration: none;
+      transition: background .2s ease, color .2s ease;
+
+      &:hover {
+        background: $bg-2;
+        color: $fg;
+      }
+
+      &:focus-visible {
+        @include focus-ring;
+      }
+
+      /* Indicador inferior elegante */
+      &::after {
+        content: "";
+        position: absolute;
+        left: $space-3;
+        right: $space-3;
+        bottom: 6px;
+        height: 2px;
+        border-radius: 1px;
+        background: linear-gradient(90deg, transparent, $accent, transparent);
+        opacity: 0;
+        transform: scaleX(.6);
+        transition: opacity .2s ease, transform .2s ease;
+      }
+
+      /* Activo por clase (si usas routerLinkActive="active") */
+      &.active,
+        /* Activo por clase por defecto de Angular */
+      &.router-link-active,
+        /* Activo por atributo de accesibilidad */
+      &[aria-current="page"] {
+        color: $fg;
+        background: $bg-2;
+
+        &::after {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+    }
+  }
+}
+
+/* ====== Main ====== */
+main {
+  padding: $space-4;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+
+  /* Tarjetas y secciones internas sugeridas */
+  .card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: clamp(10px, 1.4vw, 16px);
+    padding: $space-6;
+    box-shadow: 0 8px 30px rgba(0,0,0,.2);
+  }
+
+  h1, h2, h3 {
+    line-height: 1.2;
+    letter-spacing: .2px;
+  }
+
+  p {
+    color: $muted;
+  }
+}
+
+/* ====== Responsivo ====== */
+@media (max-width: 900px) {
+  header {
+    padding: $space-3;
+
+    nav {
+      gap: $space-2;
+
+      a {
+        padding: $space-2 $space-3;
+        font-size: .95rem;
+      }
+    }
+  }
+
+  main {
+    padding: $space-3;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    /* En móviles apilamos: marca arriba, menú abajo */
+    > * {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $space-3;
+    }
+
+    nav {
+      flex-wrap: wrap;
+      a {
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+/* ====== Estados accesibles ====== */
+a:focus-visible { @include focus-ring; }
+
+/* ====== Utilidades opcionales ====== */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: $space-4;
+}
+
+.muted { color: $muted; }
+.accent { color: $accent; }
+.btn-link {
+  background: transparent;
+  border: none;
+  color: $accent;
+  padding: $space-2 $space-3;
+  border-radius: $radius;
+  cursor: pointer;
+
+  &:hover { color: $accent-2; background: rgba(34,211,238,.08); }
+  &:focus-visible { @include focus-ring; }
+}

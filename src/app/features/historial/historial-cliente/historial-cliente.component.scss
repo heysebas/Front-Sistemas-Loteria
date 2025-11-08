@@ -1,0 +1,109 @@
+/* === Historial por cliente === */
+$bg-card: rgba(255,255,255,.03);
+$bd-card: rgba(255,255,255,.06);
+$muted: #9ca3af;
+$fg: #fff;
+$accent: #22d3ee;
+
+:host {
+  display: block;
+  color: $fg;
+}
+
+h1 {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  margin-bottom: .75rem;
+  font-weight: 600;
+}
+
+form {
+  background: $bg-card;
+  border: 1px solid $bd-card;
+  border-radius: 14px;
+  padding: .75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  max-width: 640px;
+
+  label {
+    color: $muted;
+    font-size: .9rem;
+    margin-right: .25rem;
+  }
+
+  input {
+    background: #0b1220;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px;
+    padding: .5rem .65rem;
+    color: $fg;
+    min-width: 240px;
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba(34,211,238,.2);
+    }
+  }
+
+  button {
+    background: linear-gradient(180deg, #22d3ee, #06b6d4);
+    color: #002229;
+    border: none;
+    border-radius: 10px;
+    padding: .55rem .9rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled { opacity: .6; cursor: not-allowed; }
+  }
+}
+
+.info {
+  margin-top: .75rem;
+  color: $muted;
+
+  strong { color: $fg; }
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  margin-top: .9rem !important; /* para sobreescribir inline si lo mantienes */
+  border-collapse: collapse;
+  background: $bg-card;
+  border: 1px solid $bd-card;
+  border-radius: 14px;
+  overflow: hidden;
+
+  thead {
+    background: rgba(255,255,255,.06);
+    th {
+      text-align: left;
+      padding: .6rem .7rem;
+      font-weight: 600;
+      color: $fg;
+    }
+  }
+
+  tbody {
+    td {
+      padding: .55rem .7rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+      color: $fg;
+    }
+
+    tr:nth-child(even) { background: rgba(255,255,255,.02); }
+    tr:hover { background: rgba(34,211,238,.06); }
+  }
+}
+
+/* Mensajes */
+p[ng-reflect-ng-if], p.ng-star-inserted {
+  /* selecciona los <p *ngIf> de “error”/“Sin resultados” sin clases extra */
+  margin-top: .5rem;
+  &.text-error { color: #f87171; }
+  &.text-ok    { color: #34d399; }
+}

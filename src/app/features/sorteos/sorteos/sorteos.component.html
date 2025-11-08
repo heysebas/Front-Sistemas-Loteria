@@ -1,0 +1,81 @@
+<h1 class="text-2xl font-semibold mb-4">Sorteos</h1>
+
+<div *ngIf="cargando">Cargando sorteos...</div>
+
+<div class="grid gap-4 md:grid-cols-2">
+  <div class="border p-3 rounded">
+    <h2 class="font-semibold mb-2">Listado de sorteos</h2>
+    <ul *ngIf="sorteos().length; else sinSorteos" class="divide-y">
+      <li
+        *ngFor="let s of sorteos()"
+        class="py-2 flex items-center justify-between"
+      >
+        <div>
+          <div class="font-bold">{{ s.nombre }}</div>
+          <small>{{ s.fechaSorteo | date }}</small>
+        </div>
+        <button
+          class="bg-slate-900 text-white px-3 py-1 rounded"
+          (click)="seleccionarSorteo(s)"
+        >
+          Ver billetes
+        </button>
+      </li>
+    </ul>
+    <ng-template #sinSorteos>No hay sorteos disponibles.</ng-template>
+  </div>
+
+  <div *ngIf="seleccionado()" class="border p-3 rounded">
+    <h2 class="font-semibold mb-2">
+      Billetes del sorteo: {{ seleccionado()?.nombre }}
+    </h2>
+
+    <form
+      [formGroup]="ventaForm"
+      (ngSubmit)="vender()"
+      class="flex flex-wrap gap-2 mb-3"
+    >
+      <input
+        type="number"
+        placeholder="ID billete"
+        class="border rounded px-2 py-1"
+        formControlName="billeteId"
+      />
+      <input
+        type="email"
+        placeholder="Correo cliente"
+        class="border rounded px-2 py-1"
+        formControlName="correo"
+      />
+      <button
+        class="bg-emerald-600 text-white px-3 py-1 rounded"
+        [disabled]="ventaForm.invalid || vendiendo"
+      >
+        {{ vendiendo ? 'Vendiendo...' : 'Vender' }}
+      </button>
+    </form>
+
+    <p *ngIf="msg" [class.text-red-600]="msg.type==='error'" [class.text-green-600]="msg.type==='ok'">
+      {{ msg.text }}
+    </p>
+
+    <table *ngIf="billetes().length" class="w-full text-sm mt-3 border">
+      <thead class="bg-slate-100">
+      <tr>
+        <th class="p-1 text-left">ID</th>
+        <th class="p-1 text-left">Número</th>
+        <th class="p-1 text-left">Precio</th>
+        <th class="p-1 text-left">Estado</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let b of billetes()" class="border-t">
+        <td class="p-1">{{ b.id }}</td>
+        <td class="p-1">{{ b.numero }}</td>
+        <td class="p-1">{{ b.precio | currency:'COP' }}</td>
+        <td class="p-1">{{ b.estado }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

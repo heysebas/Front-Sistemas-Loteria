@@ -1,0 +1,28 @@
+<!-- src/app/features/clientes/cliente-form/cliente-form.component.html -->
+<h1>Registrar cliente</h1>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label>Nombre</label>
+    <input type="text" formControlName="nombre" placeholder="Juan Pérez" />
+    <small *ngIf="f.nombre.touched && f.nombre.invalid" class="text-muted">
+      Ingresa un nombre válido (mínimo 3 caracteres).
+    </small>
+  </div>
+
+  <div>
+    <label>Correo</label>
+    <input type="email" formControlName="correo" placeholder="correo@dominio.com" />
+    <small *ngIf="f.correo.touched && f.correo.invalid" class="text-muted">
+      Ingresa un correo válido.
+    </small>
+  </div>
+
+  <button class="btn-primary" type="submit" [disabled]="loading">
+    {{ loading ? 'Guardando...' : 'Registrar' }}
+  </button>
+
+  <p *ngIf="msg" [class.text-green-600]="msg.type==='ok'" [class.text-red-600]="msg.type==='error'">
+    {{ msg.text }}
+  </p>
+</form>

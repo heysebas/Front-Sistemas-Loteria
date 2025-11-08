@@ -1,0 +1,36 @@
+<h1>Historial de billetes por cliente</h1>
+
+<form [formGroup]="f" (ngSubmit)="buscar()">
+  <label>Correo</label><br />
+  <input type="email" formControlName="correo" />
+  <button [disabled]="f.invalid || loading" style="margin-left:8px">
+    {{ loading ? 'Buscando...' : 'Buscar' }}
+  </button>
+</form>
+
+<p *ngIf="error" style="color:red">{{ error }}</p>
+
+<div *ngIf="cliente" style="margin-top:8px">
+  <strong>Cliente:</strong> {{ cliente.nombre }} ({{ cliente.correo }})
+</div>
+
+<table *ngIf="billetes.length" border="1" cellpadding="6" style="margin-top:12px">
+  <thead>
+  <tr>
+    <th>Billete</th>
+    <th>Número</th>
+    <th>Precio</th>
+    <th>Sorteo</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let b of billetes">
+    <td>#{{ b.id }}</td>
+    <td>{{ b.numero }}</td>
+    <td>{{ b.precio | currency:'COP' }}</td>
+    <td>{{ b.sorteoNombre ?? b.sorteoId }}</td>
+  </tr>
+  </tbody>
+</table>
+
+<p *ngIf="!loading && !billetes.length && intentado && !error">Sin resultados.</p>

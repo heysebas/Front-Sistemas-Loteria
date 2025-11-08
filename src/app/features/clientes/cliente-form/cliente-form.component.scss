@@ -1,0 +1,72 @@
+/* === Registrar cliente === */
+$bg-card: rgba(255,255,255,.03);
+$bd-card: rgba(255,255,255,.06);
+$muted: #9ca3af;
+$fg: #fff;
+$accent: #22d3ee;
+
+:host {
+  display: block;
+  color: $fg;
+}
+
+h1 {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  margin-bottom: .75rem;
+  font-weight: 600;
+}
+
+form {
+  background: $bg-card;
+  border: 1px solid $bd-card;
+  border-radius: 14px;
+  padding: 1rem;
+  max-width: 520px;
+
+  display: grid;
+  gap: .75rem;
+
+  label {
+    font-size: .9rem;
+    color: $muted;
+  }
+
+  input {
+    width: 100%;
+    background: #0b1220;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px;
+    padding: .55rem .7rem;
+    color: $fg;
+    transition: border-color .15s ease, box-shadow .15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba(34,211,238,.2);
+    }
+  }
+
+  button {
+    margin-top: .25rem;
+    justify-self: start;
+    background: linear-gradient(180deg, #22d3ee, #06b6d4);
+    color: #002229;
+    border: none;
+    border-radius: 10px;
+    padding: .6rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      filter: grayscale(.2);
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: .9rem;
+  }
+}
