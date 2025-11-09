@@ -18,7 +18,7 @@ Permite gestionar la venta de billetes, consultar sorteos activos y visualizar e
 ---
 
 ## 🗂️ Estructura del proyecto
-
+```bash
 src/
 │ index.html
 │ main.ts
@@ -94,7 +94,7 @@ ventas.service.ts
 - Backend corriendo en `http://localhost:8080`
 
 ### ▶️ Iniciar aplicación
-```bash
+
 npm install
 ng serve
 
