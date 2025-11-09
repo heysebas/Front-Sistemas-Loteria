@@ -1,14 +1,40 @@
-<!-- src/app/app.component.html -->
+<!-- ============================================================
+Archivo: src/app/app.component.html
+Descripción:
+Plantilla principal del sistema de lotería. Contiene la barra
+de navegación superior y el área principal donde se renderizan
+los componentes según la ruta activa mediante <router-outlet>.
+============================================================ -->
+
+<!-- ============================================================
+Encabezado principal con navegación
+------------------------------------------------------------
+Incluye los enlaces principales de la aplicación:
+- Sorteos: lista y gestión de sorteos.
+- Venta de boletas: acceso al formulario de venta.
+- Registrar cliente: formulario para nuevos clientes.
+- Historial por cliente: consulta de compras pasadas.
+============================================================ -->
 <header class="p-4 bg-slate-900 text-white flex gap-4">
+  <!-- Enlace al inicio -->
   <a routerLink="/" class="font-bold">Lotería</a>
+
+  <!-- Menú de navegación principal -->
   <nav class="flex gap-3">
     <a routerLink="/sorteos" routerLinkActive="active">Sorteos</a>
+    <a routerLink="/venta" routerLinkActive="active">Venta de boletas</a>
     <a routerLink="/clientes/registrar" routerLinkActive="active">Registrar cliente</a>
     <a routerLink="/historial" routerLinkActive="active">Historial por cliente</a>
   </nav>
 </header>
 
+<!-- ============================================================
+Contenido principal
+------------------------------------------------------------
+El componente <router-outlet> actúa como contenedor dinámico.
+Angular carga aquí el componente correspondiente según la ruta
+que el usuario seleccione en el menú superior.
+============================================================ -->
 <main class="p-4 container">
   <router-outlet></router-outlet>
 </main>
-

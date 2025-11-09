@@ -1,0 +1,368 @@
+// ============================================================
+// Archivo: src/app/features/sorteos/venta-boleta/venta-boleta.component.scss
+// Descripción:
+// Estilos de la pantalla de venta de boletas. Incluye:
+// - Paneles y filas de formulario.
+// - Badges de disponibilidad y vendidos.
+// - Grid de billetes con estados (disponible, vendido, seleccionado, procesando).
+// - Acciones (botones primarios/secundarios) y mensajes de estado.
+// - Barra/resumen para selección múltiple y listado de compradores.
+// Accesibilidad: se añaden estilos de :focus-visible, contraste y estados :disabled.
+// ============================================================
+
+// =====================
+// Tokens de color (opc.)
+// =====================
+$bg-100: #0b0f14;
+$bg-200: #0f141a;
+$bg-300: #121a22;
+$fg-100: #e6edf7;
+$fg-200: #c6d1dd;
+
+$accent: #0aa5ff;    // azul celeste para foco/selección
+$accent-700: #0879bd;
+$ok-bg: #143;        // badge ok bg
+$ok-fg: #9f9;
+$warn-bg: #431;      // badge warn bg
+$warn-fg: #fbb;
+
+$border-1: #233041;
+$border-2: #3a4a5f;
+
+$danger: #c0392b;
+$success: #0a5;
+
+// Reset breve para tipografía local
+:host {
+  display: block;
+  color: $fg-100;
+}
+
+// =====================
+// Encabezados y paneles
+// =====================
+h2 {
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.panel {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  padding: .75rem;
+  background: $bg-200;
+  border: 1px solid $border-1;
+  border-radius: .75rem;
+}
+
+.fila {
+  display: grid;
+  gap: .35rem;
+  max-width: 560px;
+
+  label {
+    font-size: .95rem;
+    color: $fg-200;
+  }
+
+  input, select {
+    background: $bg-100;
+    color: $fg-100;
+    border: 1px solid $border-2;
+    border-radius: .5rem;
+    padding: .55rem .65rem;
+    outline: none;
+
+    &:focus-visible {
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba($accent, .25);
+    }
+
+    &:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// =======
+// Badges
+// =======
+.badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  margin-right: .5rem;
+  border: 1px solid transparent;
+
+  &.ok {
+    background: $ok-bg;
+    color: $ok-fg;
+    border-color: rgba(255,255,255,.07);
+  }
+  &.warn {
+    background: $warn-bg;
+    color: $warn-fg;
+    border-color: rgba(255,255,255,.07);
+  }
+}
+
+// =====================
+// Grid de billetes
+// =====================
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: .5rem;
+  position: relative;
+  margin-bottom: 1rem;
+
+  &.loading::after {
+    content: 'Cargando…';
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,.35);
+    color: #fff;
+    font-weight: 600;
+    border-radius: .75rem;
+    backdrop-filter: blur(2px);
+  }
+
+  button {
+    padding: .6rem .25rem;
+    border: 1px solid $border-2;
+    border-radius: .5rem;
+    background: $bg-100;
+    color: $fg-100;
+    cursor: pointer;
+    text-align: center;
+    transition: transform .05s ease, border-color .15s ease, box-shadow .15s ease;
+
+    // Hover/focus para disponibles
+    &:not(.vendido):not(:disabled):hover {
+      border-color: $accent;
+      transform: translateY(-1px);
+    }
+    &:not(.vendido):focus-visible {
+      outline: 0;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba($accent, .25);
+    }
+
+    &.vendido {
+      background: #301;
+      color: $warn-fg;
+      cursor: not-allowed;
+      opacity: .65;
+      border-color: rgba(255,255,255,.08);
+    }
+
+    // Seleccionado (modo múltiple)
+    &.sel {
+      outline: 2px solid $accent;
+      outline-offset: 0;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba($accent, .18);
+    }
+
+    // Estado procesando (bloqueo temporal local)
+    &.procesando {
+      position: relative;
+      cursor: progress;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            -45deg,
+            rgba(255,255,255,.06) 0 8px,
+            rgba(255,255,255,.02) 8px 16px
+        );
+        border-radius: .5rem;
+      }
+    }
+
+    &:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ==========================
+// Acciones (botones primarios)
+// ==========================
+.acciones {
+  margin-top: .5rem;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+
+  button {
+    padding: .6rem .9rem;
+    border-radius: .5rem;
+    background: $success;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+
+    &:hover {
+      filter: brightness(1.05);
+    }
+    &:active {
+      transform: translateY(1px);
+    }
+    &:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+  }
+
+  // Botón secundario (si lo usas)
+  .btn-secundario {
+    background: $bg-300;
+    color: $fg-100;
+    border: 1px solid $border-2;
+  }
+
+  // Botón peligro (cancelaciones)
+  .btn-peligro {
+    background: $danger;
+  }
+}
+
+// ============
+// Mensajería
+// ============
+.msg {
+  margin-top: .5rem;
+  font-size: .95rem;
+
+  &.ok { color: #8f8; }
+  &.err { color: $warn-fg; }
+}
+
+// ===================================
+// Barra de resumen selección múltiple
+// ===================================
+.resumen-multiple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .6rem .75rem;
+  border: 1px dashed $border-2;
+  border-radius: .65rem;
+  background: $bg-200;
+  margin-top: .5rem;
+
+  .lista {
+    font-size: .95rem;
+    color: $fg-200;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .total {
+    font-weight: 700;
+    color: $fg-100;
+  }
+}
+
+// =====================
+// Listado de compradores
+// =====================
+.compradores {
+  margin-top: 1rem;
+  background: $bg-200;
+  border: 1px solid $border-1;
+  border-radius: .75rem;
+  overflow: hidden;
+
+  header {
+    padding: .6rem .75rem;
+    border-bottom: 1px solid $border-1;
+    font-weight: 700;
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: .55rem .65rem;
+      border-bottom: 1px solid $border-1;
+      text-align: left;
+      font-size: .95rem;
+    }
+
+    th {
+      color: $fg-200;
+      font-weight: 600;
+      background: $bg-300;
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,.02);
+    }
+  }
+
+  .vacio {
+    padding: .9rem .75rem;
+    color: $fg-200;
+  }
+}
+
+// ==========================
+// Controles pequeños/toggles
+// ==========================
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  user-select: none;
+
+  input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: $accent;
+    cursor: pointer;
+  }
+}
+
+// ============
+// Utilitarios
+// ============
+.flex { display: flex; }
+.gap-sm { gap: .5rem; }
+.gap-md { gap: .75rem; }
+.mt-sm { margin-top: .5rem; }
+.mt-md { margin-top: 1rem; }
+.muted { color: $fg-200; }
+.hr {
+  height: 1px;
+  border: 0;
+  background: $border-1;
+  margin: .75rem 0;
+}
+
+// ========================
+// Responsividad básica
+// ========================
+@media (max-width: 640px) {
+  .panel { padding: .65rem; }
+  .fila { max-width: 100%; }
+  .resumen-multiple {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

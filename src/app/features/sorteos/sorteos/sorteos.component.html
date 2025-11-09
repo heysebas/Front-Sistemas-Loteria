@@ -1,81 +1,178 @@
-<h1 class="text-2xl font-semibold mb-4">Sorteos</h1>
+<h2 class="text-xl font-semibold mb-4">Gestión de Sorteos</h2>
 
-<div *ngIf="cargando">Cargando sorteos...</div>
+<section class="card">
+  <h3 class="font-medium mb-2">Crear nuevo sorteo</h3>
 
-<div class="grid gap-4 md:grid-cols-2">
-  <div class="border p-3 rounded">
-    <h2 class="font-semibold mb-2">Listado de sorteos</h2>
-    <ul *ngIf="sorteos().length; else sinSorteos" class="divide-y">
-      <li
-        *ngFor="let s of sorteos()"
-        class="py-2 flex items-center justify-between"
-      >
-        <div>
-          <div class="font-bold">{{ s.nombre }}</div>
-          <small>{{ s.fechaSorteo | date }}</small>
-        </div>
-        <button
-          class="bg-slate-900 text-white px-3 py-1 rounded"
-          (click)="seleccionarSorteo(s)"
-        >
-          Ver billetes
-        </button>
-      </li>
-    </ul>
-    <ng-template #sinSorteos>No hay sorteos disponibles.</ng-template>
-  </div>
+  <form [formGroup]="createForm" (ngSubmit)="onCrearSorteo()" class="form-grid">
+    <label>
+      Nombre
+      <input formControlName="nombre" placeholder="Ej. Sorteo Navidad" />
+      <small class="text-red-600" *ngIf="createForm.get('nombre')?.invalid && createForm.get('nombre')?.touched">
+        El nombre es obligatorio (máx. 80).
+      </small>
+    </label>
 
-  <div *ngIf="seleccionado()" class="border p-3 rounded">
-    <h2 class="font-semibold mb-2">
-      Billetes del sorteo: {{ seleccionado()?.nombre }}
-    </h2>
+    <label>
+      Fecha del sorteo
+      <input type="date" formControlName="fechaSorteo" [min]="minDateStr" />
+      <small class="text-red-600" *ngIf="createForm.get('fechaSorteo')?.errors?.['fechaPasada']">
+        La fecha no puede ser anterior a hoy.
+      </small>
+      <small class="text-red-600" *ngIf="createForm.get('fechaSorteo')?.errors?.['required'] && createForm.get('fechaSorteo')?.touched">
+        La fecha es obligatoria.
+      </small>
+    </label>
 
-    <form
-      [formGroup]="ventaForm"
-      (ngSubmit)="vender()"
-      class="flex flex-wrap gap-2 mb-3"
+    <div class="two-col">
+      <label>
+        Cantidad de billetes
+        <input type="number" formControlName="cantidad" min="1" />
+        <small class="text-red-600" *ngIf="createForm.get('cantidad')?.errors?.['min'] && createForm.get('cantidad')?.touched">
+          La cantidad debe ser al menos 1.
+        </small>
+      </label>
+      <label>
+        Precio (COP)
+        <input type="number" formControlName="precio" min="0" />
+        <small class="text-red-600" *ngIf="createForm.get('precio')?.errors?.['min'] && createForm.get('precio')?.touched">
+          El precio no puede ser negativo.
+        </small>
+      </label>
+    </div>
+
+    <button [disabled]="creando || createForm.invalid" type="submit">
+      {{ creando ? 'Creando...' : 'Crear sorteo' }}
+    </button>
+    <p *ngIf="createMsg" class="hint mt-2">{{ createMsg }}</p>
+  </form>
+</section>
+
+<section class="sorteos">
+  <h3 class="font-medium mb-2">Sorteos registrados</h3>
+  <div *ngIf="!sorteos.length" class="muted">No hay sorteos aún.</div>
+
+  <ul class="sorteos-grid">
+    <li
+      *ngFor="let s of sorteos"
+      class="sorteo-card transition hover:shadow-lg hover:scale-[1.02]"
+      [class.opacity-60]="isPasado(s)"
+      tabindex="0"
     >
-      <input
-        type="number"
-        placeholder="ID billete"
-        class="border rounded px-2 py-1"
-        formControlName="billeteId"
-      />
-      <input
-        type="email"
-        placeholder="Correo cliente"
-        class="border rounded px-2 py-1"
-        formControlName="correo"
-      />
-      <button
-        class="bg-emerald-600 text-white px-3 py-1 rounded"
-        [disabled]="ventaForm.invalid || vendiendo"
-      >
-        {{ vendiendo ? 'Vendiendo...' : 'Vender' }}
-      </button>
-    </form>
+      <div class="titulo text-lg font-semibold" [class.text-blue-700]="!isPasado(s)" [class.text-gray-700]="isPasado(s)">
+        {{ s.nombre }}
+      </div>
 
-    <p *ngIf="msg" [class.text-red-600]="msg.type==='error'" [class.text-green-600]="msg.type==='ok'">
-      {{ msg.text }}
-    </p>
+      <div class="fecha text-sm text-gray-600 mb-2">
+        {{ s.fechaSorteo | date: 'mediumDate' }}
+      </div>
 
-    <table *ngIf="billetes().length" class="w-full text-sm mt-3 border">
-      <thead class="bg-slate-100">
-      <tr>
-        <th class="p-1 text-left">ID</th>
-        <th class="p-1 text-left">Número</th>
-        <th class="p-1 text-left">Precio</th>
-        <th class="p-1 text-left">Estado</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let b of billetes()" class="border-t">
-        <td class="p-1">{{ b.id }}</td>
-        <td class="p-1">{{ b.numero }}</td>
-        <td class="p-1">{{ b.precio | currency:'COP' }}</td>
-        <td class="p-1">{{ b.estado }}</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+      <div class="resumen flex gap-2 mb-2">
+        <div class="pill disponible bg-green-100 text-green-800 px-2 py-1 rounded-md">
+          Disponibles <strong>{{ s.disponibles }}</strong>
+        </div>
+        <div class="pill vendido bg-red-100 text-red-800 px-2 py-1 rounded-md">
+          Vendidos <strong>{{ s.vendidos }}</strong>
+        </div>
+      </div>
+
+      <div class="progress bg-gray-200 rounded-full h-3 mb-1 overflow-hidden">
+        <div
+          class="progress-fill h-3 rounded-full"
+          [class.bg-blue-500]="!isPasado(s)"
+          [class.bg-gray-400]="isPasado(s)"
+          [style.width.%]="(s.vendidos + s.disponibles) > 0
+            ? (s.vendidos * 100) / (s.vendidos + s.disponibles)
+            : 0"
+        ></div>
+      </div>
+      <div class="progress-legend text-xs text-gray-500">
+        {{ s.vendidos }} / {{ s.vendidos + s.disponibles }} vendidos
+      </div>
+
+      <!-- Acciones -->
+      <div class="text-center mt-3" *ngIf="!isPasado(s); else finalizadoAcciones">
+        <button
+          type="button"
+          class="btn-venta text-white px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700"
+          (click)="irAVenta(s.id)"
+        >
+          Vender boletas
+        </button>
+      </div>
+      <ng-template #finalizadoAcciones>
+        <div class="text-center mt-3">
+          <button
+            type="button"
+            class="text-white px-3 py-1 rounded-md bg-sky-500 hover:bg-sky-600"
+            (click)="abrirDetalleFinalizado(s)"
+          >
+            Ver detalle de ventas
+          </button>
+        </div>
+      </ng-template>
+    </li>
+  </ul>
+</section>
+
+<!-- ===================== MODAL DETALLE FINALIZADO ===================== -->
+<div class="modal-backdrop" *ngIf="detalleAbierto" (click)="cerrarDetalle()"></div>
+
+<div
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  *ngIf="detalleAbierto && detalleSorteo as ds"
+>
+  <header class="modal-header">
+    <h3 class="modal-title">
+      Ventas — {{ ds.nombre }} ({{ ds.fechaSorteo | date:'mediumDate' }})
+    </h3>
+    <button class="modal-close" (click)="cerrarDetalle()" aria-label="Cerrar">×</button>
+  </header>
+
+  <section class="modal-body">
+    <div *ngIf="getEstado(ds.id).loading" class="hint">Cargando ventas…</div>
+    <div *ngIf="getEstado(ds.id).error" class="text-red-600">
+      {{ getEstado(ds.id).error }}
+    </div>
+
+    <ng-container *ngIf="!getEstado(ds.id).loading && !getEstado(ds.id).error">
+      <div *ngIf="!getEstado(ds.id).items.length" class="muted">
+        No hay ventas registradas para este sorteo.
+      </div>
+
+      <table *ngIf="getEstado(ds.id).items.length" class="tabla w-full">
+        <thead>
+        <tr>
+          <th class="text-left">#</th>
+          <th class="text-left">Cliente</th>
+          <th class="text-left">Billete</th>
+          <th class="text-left">Precio</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let it of getEstado(ds.id).items; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>
+            {{ it.nombre }}
+            <small class="text-gray-500" *ngIf="it.correo">({{ it.correo }})</small>
+          </td>
+          <td>#{{ it.numero }}</td>
+          <td>{{ it.precio | currency:'COP':'symbol':'1.0-0' }}</td>
+
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="total mt-2 text-right font-semibold" *ngIf="getEstado(ds.id).items.length">
+        Total vendido: {{ getEstado(ds.id).total | currency:'COP':'symbol':'1.0-0' }}
+      </div>
+    </ng-container>
+  </section>
+
+  <footer class="modal-footer">
+    <button class="btn" (click)="cerrarDetalle()">Cerrar</button>
+  </footer>
 </div>
+<!-- =================== /MODAL DETALLE FINALIZADO =================== -->

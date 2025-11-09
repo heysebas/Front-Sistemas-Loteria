@@ -1,0 +1,139 @@
+<h2>Venta de boletas</h2>
+
+<section class="panel">
+  <div class="fila">
+    <label for="sorteo">Sorteo activo</label>
+    <select id="sorteo" [ngModel]="form.value.sorteoId" (ngModelChange)="onSelectSorteo($event)">
+      <option [ngValue]="null">-- Selecciona sorteo --</option>
+      <option *ngFor="let s of sorteosActivos" [ngValue]="s.id">
+        {{ s.nombre }} — {{ s.fechaSorteo | date:'yyyy-MM-dd' }}
+      </option>
+    </select>
+  </div>
+
+  <div class="fila" *ngIf="seleccionado">
+    <span class="badge ok" *ngIf="billetes.length">Disponibles: {{ disponiblesCount }}</span>
+    <span class="badge warn" *ngIf="billetes.length">Vendidos: {{ vendidosCount }}</span>
+  </div>
+
+  <!-- 🔹 Precio unitario y total vendido -->
+  <div class="fila" *ngIf="seleccionado">
+    <span class="badge info">Precio boleta: {{ precioBoleta | currency:'COP':'symbol':'1.0-0' }}</span>
+    <span class="badge strong">Total vendido: {{ totalVendido | currency:'COP':'symbol':'1.0-0' }}</span>
+  </div>
+
+  <!-- ✅ NUEVO: interruptor simple para activar selección múltiple (mismo look) -->
+  <div class="fila" *ngIf="seleccionado">
+    <label class="muted">
+      <input type="checkbox" [ngModel]="ventaMultiple" (ngModelChange)="setModo($event)" />
+      Seleccionar varios
+    </label>
+
+    <span class="badge info" *ngIf="ventaMultiple && seleccionMultipleIds.size">
+      Seleccionados: {{ seleccionMultipleIds.size }} ·
+      Total: {{ seleccionMultipleTotal | currency:'COP':'symbol':'1.0-0' }}
+    </span>
+  </div>
+</section>
+
+<section *ngIf="seleccionado" class="grid" [class.loading]="cargandoBilletes">
+  <button
+    *ngFor="let b of billetes"
+    (click)="ventaMultiple ? toggleSeleccion(b) : seleccionarBillete(b)"
+    [disabled]="b.estado !== 'DISPONIBLE'"
+    [class.vendido]="b.estado === 'VENDIDO'"
+    [class.sel]="ventaMultiple ? estaSeleccionado(b.id) : (billeteSeleccionado?.id === b.id)">
+    #{{ b.numero }}
+  </button>
+</section>
+
+<section class="panel" *ngIf="seleccionado">
+  <div class="fila">
+    <label>Cliente</label>
+    <select [ngModel]="form.value.clienteId" (ngModelChange)="form.patchValue({ clienteId: $event })">
+      <option [ngValue]="null">-- Selecciona cliente --</option>
+      <option *ngFor="let c of clientes" [ngValue]="c.id">{{ c.nombre }}</option>
+    </select>
+  </div>
+
+  <!-- 🧾 MODO ÚNICO (igual que tu diseño) -->
+  <ng-container *ngIf="!ventaMultiple">
+    <div class="fila">
+      <label>Billete</label>
+      <input type="text" [value]="billeteSeleccionado?.numero || ''" readonly />
+    </div>
+
+    <div class="fila" *ngIf="billeteSeleccionado">
+      <label>Precio seleccionado</label>
+      <input
+        type="text"
+        [value]="(billeteSeleccionado.precio || 0) | currency:'COP':'symbol':'1.0-0'"
+        readonly
+      />
+    </div>
+  </ng-container>
+
+  <!-- 🧾 MODO MÚLTIPLE (mismo estilo, mostrando selección y total) -->
+  <ng-container *ngIf="ventaMultiple">
+    <div class="fila">
+      <label>Boletas seleccionadas</label>
+      <!-- ✅ Reemplazado: usamos el getter seleccionMultipleResumen para evitar Array.from/map en el template -->
+      <input type="text" [value]="seleccionMultipleResumen" readonly />
+    </div>
+    <div class="fila">
+      <label>Total selección</label>
+      <input type="text"
+             [value]="(seleccionMultipleTotal || 0) | currency:'COP':'symbol':'1.0-0'"
+             readonly />
+    </div>
+  </ng-container>
+
+  <div class="acciones">
+    <button
+      (click)="vender()"
+      [disabled]="vendiendo
+                  || !form.value.clienteId
+                  || (!ventaMultiple && !billeteSeleccionado)
+                  || (ventaMultiple && seleccionMultipleIds.size===0)">
+      {{ ventaMultiple ? 'Vender seleccionados' : 'Comprar' }}
+    </button>
+  </div>
+
+  <div class="msg" [class.ok]="ventaMsg.includes('Vendido') || ventaMsg.includes('completa')"
+       [class.err]="ventaMsg.startsWith('Error')">
+    {{ ventaMsg }}
+  </div>
+
+  <!-- 👇 Lista de compradores (sin cambios) -->
+  <section class="panel compradores" *ngIf="seleccionado">
+    <h3>Personas que han comprado</h3>
+
+    <div *ngIf="cargandoCompradores" class="hint">Cargando compradores…</div>
+
+    <div *ngIf="!cargandoCompradores && !compradores.length" class="hint">
+      Aún no hay compras para este sorteo.
+    </div>
+
+    <table *ngIf="!cargandoCompradores && compradores.length" class="tabla">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th>Billete</th>
+        <th>Precio</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let p of compradores; index as i">
+        <td>{{ i + 1 }}</td>
+        <td>
+          {{ p.nombre }}
+          <small *ngIf="p.correo" class="muted">({{ p.correo }})</small>
+        </td>
+        <td>#{{ p.numero }}</td>
+        <td>{{ p.precio | currency:'COP':'symbol':'1.0-0' }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</section>
