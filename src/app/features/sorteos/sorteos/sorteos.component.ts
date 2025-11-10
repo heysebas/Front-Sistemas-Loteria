@@ -20,7 +20,7 @@ import {
 } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { firstValueFrom, forkJoin, of } from 'rxjs';
+import { firstValueFrom, forkJoin, of, interval, Subscription } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
@@ -88,6 +88,12 @@ export class SorteosComponent implements OnInit {
   detalleAbierto = false;
   detalleSorteo: SorteoUI | null = null;
 
+  /** Overlay de generación */
+  generando = false;
+  genMsg = '';
+  genProgress = 0;
+  private progSub?: Subscription;
+
   constructor(
     private fb: FormBuilder,
     private sorteosSrv: SorteosService,
@@ -97,8 +103,8 @@ export class SorteosComponent implements OnInit {
      * Configuración y validación del formulario de creación.
      * - nombre: requerido, máximo 80 caracteres
      * - fechaSorteo: requerida y no puede ser una fecha pasada
-     * - cantidad: mínimo 1
-     * - precio: mínimo 0
+     * - cantidad: [1..10000]
+     * - precio: [0..9_999_999_999.99]
      */
     this.createForm = this.fb.nonNullable.group({
       nombre: this.fb.nonNullable.control('', {
@@ -108,10 +114,10 @@ export class SorteosComponent implements OnInit {
         validators: [Validators.required, this.fechaNoPasadaValidator],
       }),
       cantidad: this.fb.nonNullable.control(100, {
-        validators: [Validators.required, Validators.min(1)],
+        validators: [Validators.required, Validators.min(1), Validators.max(10000)],
       }),
       precio: this.fb.nonNullable.control(10000, {
-        validators: [Validators.required, Validators.min(0)],
+        validators: [Validators.required, Validators.min(0), Validators.max(9_999_999_999.99)],
       }),
     });
   }
@@ -151,6 +157,44 @@ export class SorteosComponent implements OnInit {
   };
 
   /** ==========================================================
+   *  OVERLAY DE CARGA / PROGRESO
+   * ========================================================== */
+
+  private startProgreso(msg = 'Generando billetes…') {
+    this.generando = true;
+    this.genMsg = msg;
+    this.genProgress = 5;
+
+    this.progSub?.unsubscribe();
+    // Simulación de progreso hasta 90% (si no hay progreso real del backend)
+    this.progSub = interval(250).subscribe(() => {
+      const cap = 90;
+      const inc = Math.max(0.3, (cap - this.genProgress) / 25);
+      this.genProgress = Math.min(cap, this.genProgress + inc);
+    });
+  }
+
+  private endProgreso() {
+    this.progSub?.unsubscribe();
+    this.genProgress = 100;
+    setTimeout(() => {
+      this.generando = false;
+      this.genMsg = '';
+      this.genProgress = 0;
+    }, 350);
+  }
+
+  private failProgreso(msg = 'Error generando billetes') {
+    this.progSub?.unsubscribe();
+    this.genMsg = msg;
+    setTimeout(() => {
+      this.generando = false;
+      this.genMsg = '';
+      this.genProgress = 0;
+    }, 700);
+  }
+
+  /** ==========================================================
    *  CREAR SORTEO Y GENERAR BILLETES
    * ========================================================== */
 
@@ -163,8 +207,12 @@ export class SorteosComponent implements OnInit {
         this.createMsg = 'La fecha del sorteo no puede ser anterior a hoy.';
       } else if (this.createForm.get('cantidad')?.errors?.['min']) {
         this.createMsg = 'La cantidad de boletas debe ser al menos 1.';
+      } else if (this.createForm.get('cantidad')?.errors?.['max']) {
+        this.createMsg = 'Máximo permitido: 10.000 boletas.';
       } else if (this.createForm.get('precio')?.errors?.['min']) {
         this.createMsg = 'El precio no puede ser negativo.';
+      } else if (this.createForm.get('precio')?.errors?.['max']) {
+        this.createMsg = 'El precio excede el máximo permitido.';
       } else {
         this.createMsg = 'Revisa los campos del formulario.';
       }
@@ -175,22 +223,27 @@ export class SorteosComponent implements OnInit {
     const { nombre, fechaSorteo, cantidad, precio } = this.createForm.getRawValue();
 
     try {
-      // Llamada al backend: crear sorteo
+      // 1) Crear sorteo
+      this.startProgreso('Creando sorteo…');
       const sorteo = await firstValueFrom(this.sorteosSrv.crear({ nombre, fechaSorteo }));
 
-      // Si se generó el sorteo, crear los billetes asociados
+      // 2) Generar billetes
+      this.genMsg = `Generando ${cantidad} billete(s)…`;
+      this.genProgress = Math.max(this.genProgress, 25);
+
       if (sorteo?.id) {
         await firstValueFrom(
           this.sorteosSrv.generarBilletes(sorteo.id, Number(cantidad), Number(precio))
         );
       }
 
-      // Mensaje de éxito
+      // 3) Cierre del overlay y feedback
+      this.endProgreso();
+
       this.createMsg = 'Sorteo creado y billetes generados correctamente.';
       this.createForm.reset({ nombre: '', fechaSorteo: '', cantidad: 100, precio: 10000 });
       this.cargarSorteos();
 
-      // Alerta visual de confirmación
       Swal.fire({
         title: 'Sorteo creado',
         text: 'El sorteo y sus billetes fueron generados correctamente.',
@@ -203,6 +256,7 @@ export class SorteosComponent implements OnInit {
 
     } catch (e) {
       console.error(e);
+      this.failProgreso();
       this.createMsg = 'Error creando sorteo.';
       Swal.fire({
         title: 'Error',

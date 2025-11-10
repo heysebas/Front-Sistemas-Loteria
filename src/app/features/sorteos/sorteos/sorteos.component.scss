@@ -13,18 +13,23 @@
 .text-xl { font-size:1.25rem; }
 
 /* --- Helpers de texto usados en el HTML (equivalentes a utilidades) --- */
-.text-white { color: #ff0000; }
+.text-white { color:#ffffff; }           /* FIX: antes estaba rojo */
+.text-red-600 { color:#dc2626; }
 .text-gray-600 { color:#8b99b2; }
 .text-gray-700 { color:#a7b1c6; }
 .text-blue-700 { color:#53c7d7; }
 .muted { color:#8b99b2; }
 
 /* --- Badges / colores (equivalentes simples) --- */
-.bg-red-100    { background:rgba(239, 68, 68, 0.15); }
-.text-red-800  { color:#f87171; }
-.bg-gray-400   { background:#475569; }
-.bg-blue-600   { background:#0ea5b7; }
+.bg-red-100   { background:rgba(239, 68, 68, 0.15); }
+.text-red-800 { color:#f87171; }
+.bg-gray-400  { background:#475569; }
+.bg-gray-700  { background:#334155; }    /* usada en overlay progreso */
+.bg-blue-500  { background:#3b82f6; }    /* usada en progress de tarjetas vigentes */
+.bg-blue-600  { background:#0ea5b7; }
 .hover\:bg-blue-700:hover { background:#0891a2; }
+.bg-sky-500   { background:#0ea5e9; }    /* botón "Ver detalle de ventas" y overlay */
+.hover\:bg-sky-600:hover { background:#0284c7; }
 
 /* --- Estados generales --- */
 .opacity-60 { opacity: .60; }
@@ -72,7 +77,7 @@
 .pill.disponible { color:#86efac; }
 .pill.vendido   { color:#fecaca; }
 
-/* Progreso */
+/* Progreso general de tarjetas */
 .progress { margin-top:12px; width:100%; height:8px; background:#111a2c; border-radius:999px; overflow:hidden; }
 .progress-fill { height:100%; background:#06b6d4; transition:width .35s ease; }
 .progress-legend { margin-top:6px; font-size:.78rem; opacity:.75; text-align:center; }
@@ -188,6 +193,42 @@
 /* --------------------------------------------------------------------------- */
 
 /* =================== /MODAL DETALLE FINALIZADO =================== */
+
+/* ============ OVERLAY DE CARGA (spinner + progreso) ============ */
+.overlay {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(15, 23, 42, .75); /* slate-900/75 */
+  z-index: 60;
+  backdrop-filter: blur(2px);
+}
+
+.overlay-card {
+  width: min(92vw, 420px);
+  background: #0b1220; color: #e6edf7;
+  border: 1px solid #111a2c;
+  border-radius: 16px;
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,255,255,.18);
+  border-top-color: #38bdf8; /* sky-400 */
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* barra fina para overlay */
+.overlay .progress { width: 100%; height: 8px; background:#111a2c; border-radius:999px; overflow:hidden; margin-top:12px; }
+.overlay .progress .progress-fill { height:100%; transition: width .25s ease; }
+
+/* =================== /OVERLAY DE CARGA =================== */
 
 /* Responsive */
 @media (max-width:1200px){ .sorteos ul{ grid-template-columns:repeat(3, minmax(220px,1fr)); } }
