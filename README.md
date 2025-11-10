@@ -1,59 +1,179 @@
-# SistemaLoteriaFront
+# 🎨 Front-Sistemas-Lotería — Aplicación Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+Interfaz web desarrollada en **Angular** para consumir la API REST del proyecto **Sistema de Ventas de Lotería**.  
+Permite gestionar la venta de billetes, consultar sorteos activos y visualizar el historial de clientes de forma sencilla y moderna.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🧩 Características principales
 
+- Visualización de **sorteos activos** y billetes disponibles.  
+- Registro de **ventas** en tiempo real conectado al backend (Spring Boot).  
+- **Validaciones reactivas** de formularios.  
+- Consulta del **historial de billetes vendidos por cliente**.  
+- Arquitectura modular con componentes standalone.  
+- Consumo de API REST con **HttpClient** (basado en `environment.apiUrl`).  
+- Diseño adaptable con **SCSS** limpio y personalizable.
+
+---
+
+## 🗂️ Estructura del proyecto
 ```bash
+src/
+│ index.html
+│ main.ts
+│ styles.scss
+│
+└───app
+│ app.component.html
+│ app.component.scss
+│ app.component.spec.ts
+│ app.component.ts
+│ app.config.ts
+│ app.routes.ts
+│
+├───environments/
+│ environment.ts
+│
+├───features/
+│ ├───clientes/
+│ │ └───cliente-form/
+│ │ cliente-form.component.html
+│ │ cliente-form.component.scss
+│ │ cliente-form.component.ts
+│ │
+│ ├───historial/
+│ │ └───historial-cliente/
+│ │ historial-cliente.component.html
+│ │ historial-cliente.component.scss
+│ │ historial-cliente.component.ts
+│ │
+│ └───sorteos/
+│ ├───sorteos/
+│ │ sorteos.component.html
+│ │ sorteos.component.scss
+│ │ sorteos.component.ts
+│ │
+│ └───venta-boleta/
+│ venta-boleta.component.html
+│ venta-boleta.component.scss
+│ venta-boleta.component.ts
+│
+├───models/
+│ billete.ts
+│ cliente.ts
+│ sorteo.ts
+│
+└───services/
+clientes.service.ts
+sorteos.service.ts
+ventas.service.ts
+
+
+
+---
+
+## ⚙️ Tecnologías utilizadas
+
+| Categoría | Tecnología / Framework |
+|------------|------------------------|
+| Lenguaje | TypeScript |
+| Framework | Angular 17+ |
+| Estilos | SCSS |
+| Librerías principales | Angular Router, Reactive Forms, HttpClient |
+| Backend conectado | API REST — Spring Boot 3.4 |
+| IDE recomendado | VS Code / WebStorm |
+
+---
+
+## 🚀 Ejecución del proyecto
+
+### 🔧 Requisitos previos
+- Node.js 18 o superior  
+- Angular CLI 17+  
+- Backend corriendo en `http://localhost:8080`
+
+### ▶️ Iniciar aplicación
+
+npm install
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
+Luego abre en el navegador:
+http://localhost:4200
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+🌐 Configuración del entorno
 
-```bash
-ng generate component component-name
-```
+src/app/environments/environment.ts
+export const environment = {
+  /** Modo de compilación (false = desarrollo). */
+  production: false,
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+  /** URL base del backend API. */
+  apiUrl: 'http://localhost:8080/api'
+};
 
-```bash
-ng generate --help
-```
 
-## Building
 
-To build the project run:
+🧱 Estructura funcional
+| Módulo                   | Funcionalidad                                                     |
+| ------------------------ | ----------------------------------------------------------------- |
+| **Sorteos**              | Muestra sorteos activos y billetes disponibles                    |
+| **Venta de boletas**     | Permite seleccionar sorteo, cliente y registrar una venta         |
+| **Clientes**             | Formulario de registro y validación de datos                      |
+| **Historial de cliente** | Consulta el historial de billetes vendidos por correo electrónico |
 
-```bash
-ng build
-```
+📡 Comunicación con el backend
+Todos los servicios (clientes.service.ts, sorteos.service.ts, ventas.service.ts) consumen la API REST del backend con rutas como:
+| Acción                     | Método | Endpoint                                  |
+| -------------------------- | ------ | ----------------------------------------- |
+| Listar sorteos             | GET    | `/api/sorteos`                            |
+| Listar billetes por sorteo | GET    | `/api/billetes/sorteo/{id}`               |
+| Registrar venta            | POST   | `/api/ventas`                             |
+| Historial por cliente      | GET    | `/api/clientes/historial?correo={correo}` |
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+🎨 Diseño y UX
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Componentes standalone con Reactive Forms.
 
-```bash
-ng test
-```
+Diseño modular y reutilizable con SCSS.
 
-## Running end-to-end tests
+Mensajes de validación y retroalimentación de errores del backend (GlobalExceptionHandler).
 
-For end-to-end (e2e) testing, run:
+Interfaz limpia, responsive y minimalista, inspirada en dashboards modernos.
 
-```bash
-ng e2e
-```
+🧠 Buenas prácticas aplicadas
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Arquitectura modular y escalable.
 
-## Additional Resources
+Separación de responsabilidades (componentes ↔ servicios ↔ modelos).
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Uso de Observables y Reactive Forms.
+
+Configuración centralizada de entorno (environment.ts).
+
+Manejo de errores del backend mediante HttpErrorResponse.
+
+Código tipado y documentado en TypeScript.
+
+🏁 Estado del proyecto
+
+✅ Completado y funcional.
+Incluye:
+
+Integración total con el backend
+
+Validaciones reactivas
+
+Flujo completo de venta e historial
+
+Código modular y mantenible
+
+Documentación lista para revisión técnica
+
+👨‍💻 Autor
+
+Johan Sebastian Grisales Montoya
+Desarrollador
+📅 Noviembre 2025
